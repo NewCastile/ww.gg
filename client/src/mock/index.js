@@ -1,0 +1,133 @@
+export const chats = [
+  {
+    id: 1,
+    name: "Alice Smith",
+    lastMessage: "Hey, how are you?",
+    time: "10:30 AM",
+    unread: 2,
+  },
+  {
+    id: 2,
+    name: "Bob Johnson",
+    lastMessage: "Can we meet tomorrow?",
+    time: "Yesterday",
+    unread: 0,
+  },
+  {
+    id: 3,
+    name: "Carol Williams",
+    lastMessage: "Thanks for your help!",
+    time: "Tuesday",
+    unread: 1,
+  },
+  {
+    id: 4,
+    name: "David Brown",
+    lastMessage: "Did you see the game last night?",
+    time: "Monday",
+    unread: 0,
+  },
+  {
+    id: 5,
+    name: "Eva Davis",
+    lastMessage: "Let's catch up soon!",
+    time: "Sunday",
+    unread: 3,
+  },
+  {
+    id: 6,
+    name: "Frank Miller",
+    lastMessage: "I've sent you the report.",
+    time: "Last week",
+    unread: 0,
+  },
+  {
+    id: 7,
+    name: "Grace Lee",
+    lastMessage: "Happy birthday!",
+    time: "Last week",
+    unread: 0,
+  },
+  {
+    id: 8,
+    name: "Henry Wilson",
+    lastMessage: "Can you help me with this?",
+    time: "2 weeks ago",
+    unread: 0,
+  },
+  {
+    id: 9,
+    name: "Ivy Chen",
+    lastMessage: "Thanks for the invitation!",
+    time: "2 weeks ago",
+    unread: 1,
+  },
+  {
+    id: 10,
+    name: "Jack Taylor",
+    lastMessage: "See you at the meeting.",
+    time: "3 weeks ago",
+    unread: 0,
+  },
+];
+
+export const messages = [
+  {
+    id: 1,
+    sender: "Alice Smith",
+    content: "Hey there! How's it going?",
+    time: "10:30 AM",
+    isSent: false,
+  },
+  {
+    id: 2,
+    sender: "You",
+    content: "Hi Alice! I'm doing well, thanks. How about you?",
+    time: "10:32 AM",
+    isSent: true,
+  },
+  {
+    id: 3,
+    sender: "Alice Smith",
+    content: "I'm great! Just finished a big project at work.",
+    time: "10:33 AM",
+    isSent: false,
+  },
+  {
+    id: 4,
+    sender: "You",
+    content: "That's awesome! Congratulations on completing the project.",
+    time: "10:35 AM",
+    isSent: true,
+  },
+  {
+    id: 5,
+    sender: "Alice Smith",
+    content:
+      "Thanks! It was challenging but rewarding. Want to grab coffee this weekend and catch up?",
+    time: "10:36 AM",
+    isSent: false,
+  },
+  {
+    id: 6,
+    sender: "You",
+    content: "Sounds great! How about Saturday afternoon?",
+    time: "10:38 AM",
+    isSent: true,
+  },
+  {
+    id: 7,
+    sender: "Alice Smith",
+    content:
+      "Perfect! Let's meet at our usual spot at 2 PM. Looking forward to it!",
+    time: "10:40 AM",
+    isSent: false,
+  },
+  {
+    id: 8,
+    sender: "You",
+    content: "Excellent! See you then. Have a great rest of your week!",
+    time: "10:41 AM",
+    isSent: true,
+  },
+];
