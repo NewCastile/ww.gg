@@ -5,8 +5,8 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "client:install": "pnpm install --prefix client",
-    "server:install": "pnpm install --prefix server",
+    "server:install": "cd server && pnpm install",
+    "client:install": "cd client && pnpm install",
     "server:dev": "cd server && pnpm run dev",
     "client:dev": "cd client && pnpm run dev",
     "dev": "concurrently \"cd server && pnpm run dev\" \"cd client && pnpm run dev\""
