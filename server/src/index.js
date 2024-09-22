@@ -106,10 +106,10 @@ app.post("/sendMessage", async (req, res) => {
 
     const media = new MessageMedia(mimetype, message);
 
-    console.log(media.data, media.mimetype);
-
+    console.log(media.mimetype);
+    console.log(typeof media.data);
     client
-      .sendMessage(chatId, media.data)
+      .sendMessage(chatId, "mensaje", { media })
       .then((value) => {
         console.log(value);
         return res.send("Archivo enviado");
