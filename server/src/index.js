@@ -1,4 +1,4 @@
-const { Client, RemoteAuth } = require("whatsapp-web.js");
+const { Client, RemoteAuth, MessageMedia } = require("whatsapp-web.js");
 const { MongoStore } = require("wwebjs-mongo");
 const mongoose = require("mongoose");
 const express = require("express");
@@ -13,7 +13,8 @@ require("dotenv").config({
 
 const app = express();
 
-app.use(express.json());
+app.use(express.json({ limit: "200mb" }));
+app.use(express.urlencoded({ extended: true, limit: "200mb" }));
 app.use(cors("*"));
 
 const server = createServer(app);
@@ -32,6 +33,19 @@ const client = new Client({
   }),
   puppeteer: {
     headless: true,
+    executablePath:
+      "C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe",
+    ignoreHTTPSErrors: true,
+    args: [
+      "--no-sandbox",
+      "--disable-setuid-sandbox",
+      "--disable-extensions",
+      "--disable-gpu",
+      "--disable-accelerated-2d-canvas",
+      "--no-first-run",
+      "--no-zygote",
+      "--disable-dev-shm-usage",
+    ],
   },
 });
 
@@ -85,9 +99,26 @@ app.get("/getChatBydId", async (req, res) => {
 });
 
 app.post("/sendMessage", async (req, res) => {
-  console.log(req.body);
+  const { message, mimetype, chatId } = req.body;
 
-  const { message, chatId } = req.body;
+  if (message && mimetype) {
+    console.log({ mimetype });
+
+    const media = new MessageMedia(mimetype, message);
+
+    console.log(media.data, media.mimetype);
+
+    client
+      .sendMessage(chatId, media.data)
+      .then((value) => {
+        console.log(value);
+        return res.send("Archivo enviado");
+      })
+      .catch((error) => {
+        console.log(error);
+        return res.send("Erro al enviar archivo");
+      });
+  }
 
   const messageResponse = await client.sendMessage(chatId, message);
 
