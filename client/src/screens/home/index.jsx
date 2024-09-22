@@ -3,6 +3,7 @@ import { Button } from "flowbite-react";
 import { useEffect, useState, useRef } from "react";
 import { io } from "socket.io-client";
 import { useNavigate } from "react-router-dom";
+import { LogoutButton } from "../../components/logout-button";
 import toast from "react-hot-toast";
 
 export const HomeScreen = () => {
@@ -55,13 +56,16 @@ export const HomeScreen = () => {
         <p className="text-center text-sm text-gray-500 mt-2">
           ¿Ya has iniciado sesión?
         </p>
-        <Button
-          onClick={() => {
-            navigateRef.current("/chat");
-          }}
-        >
-          Chatea ahora
-        </Button>
+        <div className="flex flex-col justify-center items-center gap-2">
+          <Button
+            onClick={() => {
+              navigateRef.current("/chat");
+            }}
+          >
+            Chatea ahora
+          </Button>
+          <LogoutButton></LogoutButton>
+        </div>
       </div>
     </div>
   );
