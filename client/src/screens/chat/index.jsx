@@ -7,12 +7,12 @@ import {
   Textarea,
   Modal,
   Label,
-  FileInput,
+  TextInput,
 } from "flowbite-react";
 import { useSocketContext } from "../../hooks/useSocketContext";
 import { useMutation, useQuery } from "react-query";
-import toast from "react-hot-toast";
 import { LogoutButton } from "../../components/logout-button";
+import toast from "react-hot-toast";
 
 // #region ChatScreen
 export const ChatScreen = () => {
@@ -110,9 +110,7 @@ export const ChatScreen = () => {
         {/* Header */}
         <div className="p-4 border-b flex justify-between items-center">
           <LogoutButton></LogoutButton>
-          <Button color="gray" size="sm">
-            <MoreVertical className="h-5 w-5" />
-          </Button>
+          <a href="/">Volver</a>
         </div>
         {/* Search */}
         {/* <div className="p-4 border-b">
@@ -225,29 +223,29 @@ export const ChatScreen = () => {
 };
 // #endregion
 
-const toBase64 = (file) =>
+/* const toBase64 = (file) =>
   new Promise((resolve, reject) => {
     const reader = new FileReader();
     reader.readAsDataURL(file);
     reader.onload = () => resolve(reader.result);
     reader.onerror = reject;
-  });
+  }); */
 
 // #region FileModal
 export const FileModal = (chatId) => {
-  const fileInputRef = useRef(null);
-
   const [openModal, setOpenModal] = useState(false);
+  const [fileUrl, setFileUrl] = useState("");
+  const [filetype, setFiletype] = useState("image/png");
+  const [filename, setFilename] = useState("imagen de prueba");
 
-  const { mutate: postMessage, isLoading: isPostingMessage } = useMutation(
-    async ({ base64, filename, filesize, mimetype }) => {
+  const { mutateAsync: postMessage, isLoading: isPostingMessage } = useMutation(
+    async () => {
       const request = new Request("http://localhost:4000/sendMessage", {
         method: "POST",
         body: JSON.stringify({
-          message: base64,
+          message: fileUrl,
           filename,
-          filesize,
-          mimetype,
+          mimetype: filetype,
           chatId,
         }),
         headers: {
@@ -260,9 +258,12 @@ export const FileModal = (chatId) => {
       const responseData = await response.json();
 
       console.log({ responseData });
+
+      return responseData;
     },
     {
-      onSuccess: () => {
+      onSuccess: (data) => {
+        console.log(data);
         toast.success("Archivo enviado correctamente");
       },
       onError: (error) => {
@@ -273,28 +274,16 @@ export const FileModal = (chatId) => {
   );
 
   const submitFile = async () => {
-    if (fileInputRef.current) {
-      const image = fileInputRef.current.files[0];
-      const { name: filename, type: mimetype, size: filesize } = image;
+    // Change between truthy and falsey values for testing
+    const bool = 0;
 
-      console.log({ filename, mimetype, filesize });
-
-      const base64 = await toBase64(fileInputRef.current.files[0]);
-
-      console.log(base64);
-
-      if (typeof base64 === "string") {
-        const falsey = 0;
-
-        if (falsey) {
-          postMessage({
-            base64,
-            filename,
-            filesize,
-            mimetype,
-          });
-        }
+    try {
+      if (bool) {
+        const response = await postMessage();
+        console.log(response);
       }
+    } catch (error) {
+      console.error(error);
     }
   };
 
@@ -314,13 +303,32 @@ export const FileModal = (chatId) => {
           <div className="text-center">
             <div>
               <div>
-                <Label htmlFor="file-upload" value="Sube un archivo" />
+                <Label htmlFor="file-name" value="Nombre del archivo" />
               </div>
-              <FileInput
-                ref={fileInputRef}
-                id="file-upload"
-                accept={"image/png, image/jpeg"}
-                multiple
+              <TextInput
+                name="file-name"
+                onChange={(e) => {
+                  setFilename(e.target.value);
+                }}
+              />
+              <div>
+                <Label htmlFor="file-url" value="Url del archivo" />
+              </div>
+              <TextInput
+                name="file-url"
+                onChange={(e) => {
+                  setFileUrl(e.target.value);
+                }}
+              />
+              <div>
+                <Label htmlFor="file-type" value="Tipo del archivo" />
+              </div>
+              <TextInput
+                name="file-type"
+                value={filetype}
+                onChange={(e) => {
+                  setFiletype(e.target.value);
+                }}
               />
             </div>
             <div className="flex justify-center gap-4">
