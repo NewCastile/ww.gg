@@ -1,36 +1,23 @@
 import { useEffect, useRef, useState } from "react";
-import { MoreVertical, Send, PowerOff } from "lucide-react";
-import { Avatar, Button, Sidebar, Textarea } from "flowbite-react";
+import { MoreVertical, Send, Paperclip } from "lucide-react";
+import {
+  Avatar,
+  Button,
+  Sidebar,
+  Textarea,
+  Modal,
+  Label,
+  FileInput,
+} from "flowbite-react";
 import { io } from "socket.io-client";
 import { useMutation, useQuery } from "react-query";
 import toast from "react-hot-toast";
+import { LogoutButton } from "../../components/logout-button";
 
 export const ChatScreen = () => {
   const [selectedChatId, setSelectedChatId] = useState(null);
   const [messageText, setMessageText] = useState("");
   const messageInputRef = useRef();
-
-  const { mutate: closeSession } = useMutation(
-    async () => {
-      const request = new Request("http://localhost:4000/logout", {
-        method: "POST",
-      });
-
-      const response = await fetch(request);
-
-      const responseData = await response.json();
-
-      console.log({ responseData });
-    },
-    {
-      onSuccess: () => {
-        toast.success("Se ha cerrado la sesión");
-      },
-      onError: () => {
-        toast.error("Error al cerrar sesión");
-      },
-    }
-  );
 
   const { mutate: postMessage, isLoading: isPostingMessage } = useMutation(
     async () => {
@@ -105,10 +92,6 @@ export const ChatScreen = () => {
     }
   };
 
-  const logout = () => {
-    closeSession();
-  };
-
   if (loadingChats) return <div>Cargando...</div>;
   if (chatsOnError)
     return (
@@ -125,10 +108,7 @@ export const ChatScreen = () => {
       <Sidebar className="w-1/3 border-r bg-white flex flex-col">
         {/* Header */}
         <div className="p-4 border-b flex justify-between items-center">
-          <Button className="rounded-full" onClick={logout}>
-            <PowerOff className="h-5 w-5 rounded-full mr-2"></PowerOff>
-            Cerrar sesión
-          </Button>
+          <LogoutButton></LogoutButton>
           <Button color="gray" size="sm">
             <MoreVertical className="h-5 w-5" />
           </Button>
@@ -214,6 +194,10 @@ export const ChatScreen = () => {
                 <Button color="gray" size="sm" className="mr-2">
                   <Paperclip className="h-5 w-5" />
                 </Button> */}
+                {/* File modal */}
+                {selectedChatId && (
+                  <FileModal chatId={selectedChatId}></FileModal>
+                )}
                 <Textarea
                   ref={messageInputRef}
                   onChange={(e) => {
@@ -243,5 +227,109 @@ export const ChatScreen = () => {
         )}
       </div>
     </div>
+  );
+};
+
+const toBase64 = (file) =>
+  new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.readAsDataURL(file);
+    reader.onload = () => resolve(reader.result);
+    reader.onerror = reject;
+  });
+
+export const FileModal = (chatId) => {
+  const fileInputRef = useRef(null);
+
+  const [openModal, setOpenModal] = useState(false);
+
+  const { mutate: postMessage, isLoading: isPostingMessage } = useMutation(
+    async ({ base64, filename, filesize, mimetype }) => {
+      const request = new Request("http://localhost:4000/sendMessage", {
+        method: "POST",
+        body: JSON.stringify({
+          message: base64,
+          filename,
+          filesize,
+          mimetype,
+          chatId,
+        }),
+        headers: {
+          "content-type": "application/json",
+        },
+      });
+
+      const response = await fetch(request);
+
+      const responseData = await response.json();
+
+      console.log({ responseData });
+    },
+    {
+      onSuccess: () => {
+        toast.success("Archivo enviado correctamente");
+      },
+      onError: (error) => {
+        console.error(error);
+        toast.error("No se ha podido enviar el archivo");
+      },
+    }
+  );
+
+  const submitFile = async () => {
+    if (fileInputRef.current) {
+      const image = fileInputRef.current.files[0];
+      const { name: filename, type: mimetype, size: filesize } = image;
+
+      console.log({ filename, mimetype, filesize });
+
+      const base64 = await toBase64(fileInputRef.current.files[0]);
+      if (typeof base64 === "string") {
+        const falsey = 0;
+
+        if (falsey) {
+          postMessage({ base64, filename, filesize, mimetype });
+        }
+      }
+    }
+  };
+
+  return (
+    <>
+      <Button onClick={() => setOpenModal(true)} disabled={isPostingMessage}>
+        <Paperclip className="h-5 w-5" />
+      </Button>
+      <Modal
+        show={openModal}
+        size="md"
+        onClose={() => setOpenModal(false)}
+        popup
+      >
+        <Modal.Header />
+        <Modal.Body>
+          <div className="text-center">
+            <div>
+              <div>
+                <Label htmlFor="file-upload" value="Sube un archivo" />
+              </div>
+              <FileInput
+                ref={fileInputRef}
+                id="file-upload"
+                accept={"image/png, image/jpeg"}
+                multiple
+              />
+            </div>
+            <div className="flex justify-center gap-4">
+              <Button color="failure" onClick={submitFile}>
+                Subir
+              </Button>
+              <Button color="gray" onClick={() => setOpenModal(false)}>
+                Cancelar
+              </Button>
+            </div>
+          </div>
+        </Modal.Body>
+      </Modal>
+    </>
   );
 };
