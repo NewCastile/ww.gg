@@ -9,15 +9,18 @@ import {
   Label,
   FileInput,
 } from "flowbite-react";
-import { io } from "socket.io-client";
+import { useSocketContext } from "../../hooks/useSocketContext";
 import { useMutation, useQuery } from "react-query";
 import toast from "react-hot-toast";
 import { LogoutButton } from "../../components/logout-button";
 
+// #region ChatScreen
 export const ChatScreen = () => {
   const [selectedChatId, setSelectedChatId] = useState(null);
   const [messageText, setMessageText] = useState("");
   const messageInputRef = useRef();
+
+  const { socket } = useSocketContext();
 
   const { mutate: postMessage, isLoading: isPostingMessage } = useMutation(
     async () => {
@@ -79,12 +82,10 @@ export const ChatScreen = () => {
   );
 
   useEffect(() => {
-    const socket = io("http://localhost:4000");
-
     socket.on("socket_connected", (msg) => {
       console.log(msg);
     });
-  }, []);
+  }, [socket]);
 
   const sendMessage = () => {
     if (messageText && messageText.length > 0) {
@@ -188,13 +189,6 @@ export const ChatScreen = () => {
             {/* Message input */}
             <div className="p-4 bg-white">
               <div className="flex items-center">
-                {/* <Button color="gray" size="sm" className="mr-2">
-                  <Smile className="h-5 w-5" />
-                </Button>
-                <Button color="gray" size="sm" className="mr-2">
-                  <Paperclip className="h-5 w-5" />
-                </Button> */}
-                {/* File modal */}
                 {selectedChatId && (
                   <FileModal chatId={selectedChatId}></FileModal>
                 )}
@@ -229,6 +223,7 @@ export const ChatScreen = () => {
     </div>
   );
 };
+// #endregion
 
 const toBase64 = (file) =>
   new Promise((resolve, reject) => {
@@ -238,6 +233,7 @@ const toBase64 = (file) =>
     reader.onerror = reject;
   });
 
+// #region FileModal
 export const FileModal = (chatId) => {
   const fileInputRef = useRef(null);
 
@@ -284,11 +280,19 @@ export const FileModal = (chatId) => {
       console.log({ filename, mimetype, filesize });
 
       const base64 = await toBase64(fileInputRef.current.files[0]);
+
+      console.log(base64);
+
       if (typeof base64 === "string") {
         const falsey = 0;
 
         if (falsey) {
-          postMessage({ base64, filename, filesize, mimetype });
+          postMessage({
+            base64,
+            filename,
+            filesize,
+            mimetype,
+          });
         }
       }
     }
@@ -333,3 +337,4 @@ export const FileModal = (chatId) => {
     </>
   );
 };
+//#endregion

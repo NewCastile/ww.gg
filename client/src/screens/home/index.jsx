@@ -1,7 +1,7 @@
 import { QRCodeSVG } from "qrcode.react";
 import { Button } from "flowbite-react";
 import { useEffect, useState, useRef } from "react";
-import { io } from "socket.io-client";
+import { useSocketContext } from "../../hooks/useSocketContext";
 import { useNavigate } from "react-router-dom";
 import { LogoutButton } from "../../components/logout-button";
 import toast from "react-hot-toast";
@@ -9,12 +9,11 @@ import toast from "react-hot-toast";
 export const HomeScreen = () => {
   const navigate = useNavigate();
   const navigateRef = useRef(navigate);
+  const { socket } = useSocketContext();
 
   const [qrCode, setQrCode] = useState(null);
 
   useEffect(() => {
-    const socket = io("http://localhost:4000");
-
     socket.on("socket_connected", (msg) => {
       toast.success(msg);
     });
@@ -35,7 +34,7 @@ export const HomeScreen = () => {
       toast.success(`QR recibido!`);
       setQrCode(qr);
     });
-  }, [qrCode]);
+  }, [qrCode, socket]);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-100 to-purple-100 flex flex-col justify-center items-center p-4">
