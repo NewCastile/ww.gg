@@ -67,7 +67,7 @@ app.get("/getChats", (req, res) => {
   client
     .getChats()
     .then((chats) => {
-      res.send(chats);
+      res.json(chats);
     })
     .catch(() => ({ message: "Error al obtener chats" }));
 });
@@ -87,7 +87,7 @@ app.get("/getChatBydId", async (req, res) => {
 
   const messages = await response.fetchMessages({ limit: Infinity });
 
-  return res.send({
+  return res.json({
     ...response,
     messages: messages.map(({ id, body, fromMe, timestamp }) => ({
       id,
@@ -99,32 +99,31 @@ app.get("/getChatBydId", async (req, res) => {
 });
 
 app.post("/sendMessage", async (req, res) => {
-  const { message, mimetype, chatId } = req.body;
+  const { message, chatId, mimetype } = req.body;
+
+  console.log(message, mimetype);
 
   if (message && mimetype) {
-    console.log({ mimetype });
+    const media = await MessageMedia.fromUrl(message);
 
-    const media = new MessageMedia(mimetype, message);
+    const { data, mimetype, filename, filesize } = media;
+    const defMedia = new MessageMedia(mimetype, data, filename, filesize);
 
-    console.log(media.mimetype);
-    console.log(typeof media.data);
-    client
-      .sendMessage(chatId, "mensaje", { media })
-      .then((value) => {
-        console.log(value);
-        return res.send("Archivo enviado");
-      })
-      .catch((error) => {
-        console.log(error);
-        return res.send("Erro al enviar archivo");
-      });
+    try {
+      const response = await client.sendMessage(chatId, defMedia);
+      console.log(response);
+      return res.json({ message: "Archivo enviado" });
+    } catch (error) {
+      console.log(error);
+      return res.json({ message: "Erro al enviar archivo" });
+    }
   }
 
   const messageResponse = await client.sendMessage(chatId, message);
 
   console.log("messageResponse", messageResponse);
 
-  return res.send({
+  return res.json({
     message,
   });
 });
@@ -147,7 +146,7 @@ app.post("/logout", (req, res) => {
 
 /* app.get("/getContacts", (req, res) => {
   client.getContacts().then((contacts) => {
-    res.send(contacts);
+    res.json(contacts);
   });
 }); */
 
