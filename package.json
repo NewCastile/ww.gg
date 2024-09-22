@@ -1,0 +1,20 @@
+{
+  "name": "ww.gg",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "client:install": "pnpm install --prefix client",
+    "server:install": "pnpm install --prefix client",
+    "server:dev": "pnpm dev --prefix client",
+    "client:dev": "pnpm dev --prefix client",
+    "dev": "concurrently \"pnpm run server:dev\" \"pnpm run client:dev\""
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "concurrently": "^9.0.1"
+  }
+}
