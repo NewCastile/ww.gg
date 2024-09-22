@@ -6,10 +6,10 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "client:install": "pnpm install --prefix client",
-    "server:install": "pnpm install --prefix client",
-    "server:dev": "pnpm dev --prefix client",
-    "client:dev": "pnpm dev --prefix client",
-    "dev": "concurrently \"pnpm run server:dev\" \"pnpm run client:dev\""
+    "server:install": "pnpm install --prefix server",
+    "server:dev": "cd server && pnpm run dev",
+    "client:dev": "cd client && pnpm run dev",
+    "dev": "concurrently \"cd server && pnpm run dev\" \"cd client && pnpm run dev\""
   },
   "keywords": [],
   "author": "",
