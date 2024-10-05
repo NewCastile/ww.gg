@@ -1,10 +1,12 @@
 const { Client, RemoteAuth, MessageMedia } = require("whatsapp-web.js");
 const { MongoStore } = require("wwebjs-mongo");
-const mongoose = require("mongoose");
-const express = require("express");
-const { createServer } = require("node:http");
 const { Server } = require("socket.io");
+const mongoose = require("mongoose");
+
+const { createServer } = require("node:http");
 const cors = require("cors");
+const express = require("express");
+const fileTypeChecker = require("file-type-checker");
 
 require("dotenv").config({
   debug: true,
@@ -32,7 +34,7 @@ const client = new Client({
     backupSyncIntervalMs: 300000,
   }),
   puppeteer: {
-    headless: true,
+    headless: false,
     executablePath:
       "C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe",
     ignoreHTTPSErrors: true,
@@ -48,6 +50,8 @@ const client = new Client({
     ],
   },
 });
+
+const exampleImageUrl = "https://via.placeholder.com/350x150.png";
 
 // Load the session data
 mongoose
@@ -101,21 +105,29 @@ app.get("/getChatBydId", async (req, res) => {
 app.post("/sendMessage", async (req, res) => {
   const { message, chatId, mimetype } = req.body;
 
-  console.log(message, mimetype);
-
-  if (message && mimetype) {
-    const media = await MessageMedia.fromUrl(message);
-
-    const { data, mimetype, filename, filesize } = media;
-    const defMedia = new MessageMedia(mimetype, data, filename, filesize);
+  if (mimetype) {
+    const media = await MessageMedia.fromUrl(exampleImageUrl, {
+      unsafeMime: true,
+    });
 
     try {
-      const response = await client.sendMessage(chatId, defMedia);
+      const response = await client.sendMessage(chatId, "Imagen enviada", {
+        caption: "Imagen enviada",
+        media: {
+          data: media.data,
+          mimetype: media.mimetype,
+          filename: media.filename,
+          filesize: null,
+        },
+        sendMediaAsDocument: true,
+      });
+
       console.log(response);
-      return res.json({ message: "Archivo enviado" });
+
+      return res.status(200).json({ message: "Archivo enviado" });
     } catch (error) {
       console.log(error);
-      return res.json({ message: "Erro al enviar archivo" });
+      return res.status(500).json({ message: "Error al enviar archivo" });
     }
   }
 
